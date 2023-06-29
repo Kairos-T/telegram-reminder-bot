@@ -20,13 +20,21 @@ A simple telegram reminder bot that helps you stay organised and never miss impo
 
 ## I want to host this bot myself!
 1. Clone this repository
-```git clone https://github.com/Kairos-T/telegram-reminder-bot.git```
+```
+git clone https://github.com/Kairos-T/telegram-reminder-bot.git
+```
 2. Install the required dependencies
-```pip install -r requirements.txt```
+```
+pip install -r requirements.txt
+```
 3. Create a new bot with [BotFather](https://t.me/BotFather) and get the API Token
 4. Set up the API Token:
 - Create a .env file in the project directory and add the following line, replacing YOUR_API_TOKEN with your actual Telegram bot API token:
-```API_TOKEN=YOUR_API_TOKEN```
+```
+API_TOKEN=YOUR_API_TOKEN
+```
 5. Run the bot
-```python bot.py```
+```
+python bot.py
+```
 6. Start using the bot! Open Telegram and search for your bot by its username. Send the command `/start` to start the bot.
