@@ -1,3 +1,4 @@
+from decouple import Config
 import logging
 import re
 import json
@@ -8,6 +9,11 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Conve
 # Logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+config = Config()
+config.read_dotenv('.env')
+api_token = config.get('API_TOKEN')
+
 
 def load_reminders():
     try:
@@ -30,7 +36,7 @@ NAME, DATE_Q, TIME_Q, DELETE = range(4)
 # /start command
 def start(update, context):
     reply_markup = ReplyKeyboardMarkup([['/set', '/list'], ['/delete', '/cancel']])
-    update.message.reply_text("Hello! I'm a reminder bot made by @kairostay. What would you like to do :3 ? ", reply_markup=reply_markup)
+    update.message.reply_text("Hello! I'm a reminder bot made by @kairostay. What would you like to do? ", reply_markup=reply_markup)
 
 # /set command
 def set_reminder(update, context):
@@ -49,7 +55,7 @@ def date_question(update, context):
         update.message.reply_text("Please provide the reminder time in the format 'HH:MM':")
         return TIME_Q
     else:
-        update.message.reply_text("Invalid date format :( . Please provide the reminder date in the format 'YYYY-MM-DD':")
+        update.message.reply_text("Invalid date format. Please provide the reminder date in the format 'YYYY-MM-DD':")
         return DATE_Q
 
 def time_question(update, context):
@@ -60,6 +66,14 @@ def time_question(update, context):
         reminder_datetime_str = f"{date_str} {time_str}"
         reminder_datetime = datetime.strptime(reminder_datetime_str, '%Y-%m-%d %H:%M')
 
+        # Check if a reminder with the same event name and date/time already exists
+        existing_reminder = next((reminder for reminder in reminders
+                                  if reminder['event_name'] == context.user_data['name'] and
+                                  datetime.fromisoformat(reminder['reminder_datetime']) == reminder_datetime), None)
+        if existing_reminder:
+            update.message.reply_text("A reminder with the same event name and date/time already exists.")
+            return ConversationHandler.END
+
         reminders.append({
             'event_name': context.user_data['name'],
             'reminder_datetime': reminder_datetime.isoformat(),
@@ -69,7 +83,7 @@ def time_question(update, context):
 
         update.message.reply_text("Reminder set successfully! :D")
     else:
-        update.message.reply_text("Invalid time format :( . Please provide the reminder time in the format 'HH:MM':")
+        update.message.reply_text("Invalid time format D: . Please provide the reminder time in the format 'HH:MM':")
         return TIME_Q
 
 # /list command
@@ -83,7 +97,7 @@ def list_reminders(update, context):
             reminder_datetime = datetime.fromisoformat(reminder['reminder_datetime'])
             message += f"- {event_name} (Reminder: {reminder_datetime.strftime('%Y-%m-%d %H:%M')})\n"
     else:
-        message = "You have no reminders."
+        message = "You have no reminders. :("
 
     update.message.reply_text(message)
 
@@ -97,7 +111,7 @@ def delete_reminder(update, context):
         update.message.reply_text("Select the reminder you want to delete:", reply_markup=reply_markup)
         return DELETE
     else:
-        update.message.reply_text("You have no reminders to delete. :O")
+        update.message.reply_text("You have no reminders to delete. :(")
 
 def delete_handler(update, context):
     selected_event = update.message.text
@@ -108,13 +122,13 @@ def delete_handler(update, context):
         save_reminders(reminders)
         update.message.reply_text("Reminder deleted successfully!")
     else:
-        update.message.reply_text("Invalid reminder selection.")
+        update.message.reply_text("Invalid reminder selection. :(")
 
     return ConversationHandler.END
 
 # /cancel command
 def cancel(update, context):
-    update.message.reply_text("Action cancelled.")
+    update.message.reply_text("Action cancelled. :( ")
     return ConversationHandler.END
 
 # Error handling
@@ -146,7 +160,9 @@ def main():
     updater.start_polling()
     updater.idle()
 
+
+
 if __name__ == '__main__':
-    updater = Updater(token='token<3', use_context=True)
+    updater = Updater(token=api_token, use_context=True)
     dispatcher = updater.dispatcher
     main()
