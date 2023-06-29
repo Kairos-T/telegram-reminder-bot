@@ -28,7 +28,5 @@ A simple telegram reminder bot that helps you stay organised and never miss impo
 - Create a .env file in the project directory and add the following line, replacing YOUR_API_TOKEN with your actual Telegram bot API token:
 ```API_TOKEN=YOUR_API_TOKEN```
 5. Run the bot
-
 ```python bot.py```
-
 6. Start using the bot! Open Telegram and search for your bot by its username. Send the command `/start` to start the bot.
