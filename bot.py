@@ -10,15 +10,17 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, Conve
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-config = Config()
-config.read_dotenv('.env')
+config = Config('telegram-reminder-bot.env')
+#config.read_dotenv('.env')
 api_token = config.get('API_TOKEN')
-
 
 def load_reminders():
     try:
         with open('reminders.json', 'r') as f:
-            reminders = json.load(f)
+            try:
+                reminders = json.load(f)
+            except:
+                reminders = []
     except FileNotFoundError:
         return []
     return reminders
@@ -136,7 +138,10 @@ def error(update, context):
     logger.warning('Update "%s" caused error "%s"', update, context.error)
 
 def main():
-    # convo handler
+    updater = Updater(api_token, use_context=True)
+    dispatcher = updater.dispatcher
+
+    # Conversation handler
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler('set', set_reminder)],
         states={
@@ -149,20 +154,16 @@ def main():
         allow_reentry=True
     )
 
-    # dispatcher handles
+    # Register handlers
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('list', list_reminders))
     dispatcher.add_handler(CommandHandler('delete', delete_reminder))
     dispatcher.add_handler(conv_handler)
     dispatcher.add_error_handler(error)
 
-    # start
+    # Start the bot
     updater.start_polling()
     updater.idle()
 
-
-
 if __name__ == '__main__':
-    updater = Updater(token=api_token, use_context=True)
-    dispatcher = updater.dispatcher
     main()
