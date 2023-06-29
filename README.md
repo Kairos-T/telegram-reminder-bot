@@ -38,3 +38,6 @@ API_TOKEN=YOUR_API_TOKEN
 python bot.py
 ```
 6. Start using the bot! Open Telegram and search for your bot by its username. Send the command `/start` to start the bot.
+
+## Contact
+If you have any questions or feedback, feel free to contact me at [my email](mailto:contact@kairostay.com)
